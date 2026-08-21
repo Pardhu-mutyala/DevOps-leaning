@@ -1,0 +1,379 @@
+Java/J2EE
+1.5, 1.6, 1.8
+
+ear --> Enterprise archeive
+war --> Web archeive
+jar --> Java archeive
+
+.ear --> Frontend+Backend(Catalogue+User+Cart+Shipping+Payment)
+Oracle DB
+.ear = multiple wars + jar(libraries/dependencies)
+
+Websphere, Weblogic, JBOSS --> Application Servers
+
+Servlet(Base for any framework like spring) + JSP(Java server pages)
+
+100MB --> 120MB
+
+Release Process
+=================
+new features
+defects
+
+Business Analyst(Client side) + Business Analyst + Team Manager + Leads + Architects + Testing + Build and Release
+Release Manager --> Co ordinate with all teams to make sure release is going as per plan and continously update clients
+
+9-6PM
+Downtime
+Application serves stopping
+Build new application
+Remove old ear
+Place new ear
+Check Modules and versions
+Restart the server
+
+if Major defects rollback
+
+Slow, No response, etc.
+
+No restart
+
+Check logs
+Logs dump, traces
+Restart
+
+02:30AM application was slow, no response, logs are attached
+Not able to replicate issue
+
+Bridge --> Clients + L2 support + L1 support + Service Desk + Networking team + Linux team + DB team + testing team
+
+JQuery and AngularJS
+
+frontend -> backend
+API --> Rest API
+
+war file --> wildfly, jboss
+(Catalogue+User+Cart+Shipping+Payment) --> APP is down if any component is not working
+
+Microservices
+===============
+Catalogue --> 10MB
+User
+Cart
+Shipping
+Payment
+
+Every component can be developed in any programming language
+Loose coupling, less dependency
+
+Joint Families vs Small Families vs Individuals
+================================================
+
+15-20 members --> .ear file --> Physical Server --> Dedicated Host
+Big House
+
+Landed House
+=============
+
+advantages
+==========
+Privacy
+
+Disadvantages
+============
+Costly
+More time to construct
+Maintanace --> Electricity, Water, Security etc.
+
+Small Families
+==============
+4 members  --> VM --> Shared
+small flat --> 1bhk or 2bhk
+
+advantages
+==========
+less cost
+less time to construct
+no maintanance
+
+disadvantages
+============
+privacy
+
+Individuals --> Microservices
+==============
+hostels, pgs --> Containers
+
+advantages
+==========
+least cost
+less time
+no maintanance
+
+disadvantages
+==========
+0 privacy
+
+VM --> Logically divides physical hardware into multiple servers
+
+Router --> Embedded OS (10Mb)
+
+IP Enabled device --> OS(10Mb) + Hardware
+
+VM(flat) 				Containers(Bed)
+Costly					less cost
+more time(boot time)	less time(Boot time)
+more size				small size
+more resources			less resources
+block the resources		dynamic resources allocation
+Hypervisor				no need of extra components
+Not portable			Portable
+More secure				Less secure(We can acheive security)
+
+sudo dnf -y install dnf-plugins-core
+sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+add your normal user to docker group
+
+sudo usermod -aG docker ec2-user
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Docker commands
+How to create docker images
+
+docker ps --> running containers
+
+AMI = OS + configurations(system packages + app runtime + app code + app libraries)
+image = Bare min OS + system packages + app runtime + app code + app libraries
+
+When you run AMI it is called as server, server is running instance of AMI
+
+Container is running instance of image
+
+docker images 
+docker pull <image-name>:<tag/version> --> get the image
+
+docker create nginx
+docker ps -a --> all containers including all status
+docker start <container-ID>
+
+docker rm <container-ID>
+docker run <image>:<tag> -> pull image + create container + start container
+docker run -d nginx --> detach the screen
+
+0-65,535
+
+docker run -d -p 80:80 nginx
+docker exec -it nginx bash
+docker inspect container-name/container-ID
+
+How can you create custom images to your applications?
+
+Dockerfile --> a set of instructions to create customised images
+
+FROM
+=========
+FROM almalinux:9
+
+docker build -t from:v1 . --> current directory has Dockerfile
+
+RUN
+=========
+RUN commands
+
+RUN instructions configure the image like installing packages, doing some configurations, etc..
+RUN executes at the time of image creation
+
+systemctl start nginx --> etc/systemd/system/nginx.service
+
+docker pull nginx -> first it checks locally, if it does not exist it checks in hub
+
+CMD
+=========
+CMD executes at the time of container creation i.e at the time of docker run. there should be only one CMD instruction inside Dockerfile
+
+COPY
+=========
+copies the code from local to container
+
+ADD
+=========
+COPY and ADD both copies the code from local to container. but it has two more advantages
+
+1. it can directly fetch the file from internet
+2. it can directly untar the file into container
+
+
+-v host-dir:container-dir
+/usr/share/nginx/html --> nginx html dir
+
+un-named/un-managed volumes
+if we create dir and manage it then those un-named/un-managed volumes
+if docker creates volumes and manages them then they are named/maanged volumes
+
+stateless vs stateful
+=====================
+WEB APP DB
+
+where data is important is called stateful applications...
+app code is stateless..
+
+volumes should be created to stateful apps. databases store the actual data is host directories, while rendering for user it will shows tables or collections
+
+use minimal images
+use official images
+run it as non root containers
+multi stage builds
+optimise docker layers
+
+multi stage builds are like keeping multiple Dockerfiles in a single Dockerfile, one Dockerfile we can use it as builder, another Dockerfile we can use it as final image, we can copy what we want from builder to final image. this reduces memory and then unnecessary installations
+
+ENV MONGO="true" \
+    REDIS_URL="redis://redis:6379" \
+    MONGO_URL="mongodb://mongodb:27017/users"
+	
+1. build image
+2. run image
+
+minimum and official images
+multi stage builds
+optimising layers, combining RUN instructions
+non root containers
+used customised networks
+implementing volumes
+COPY over ADD
+dockerignore not to load everything into docker
+
+implementing health checks
+limiting resources
+getting secrets from secrets manager
+implementing volumes
+
+
+Source code --> compile --> bytecode(intermediate code)
+
+JDK --> Java development kit(maven)
+JRE --> runs bytecode (no need of development env)
+
+system package --> OS package
+app dependency --> app library used by code
+
+/var/log/nginx
+/usr/share/nginx/html
+/etc/nginx
+
+pid
+cache
+
+nodejs java --> libraries
+image = base os + system packages + app run time + app libraries
+
+1. build the image
+2. run/configure the image
+
+client --> docker CLI
+host --> where docker is running, docker deamon(continously running)
+repos --> local repo and central repo
+
+docker run nginx
+1. first it checks image is in local or not
+2. if exists, then it will run the container
+3. if not exists, pull from hub create container and send o/p to client
+4. there are docker volumes and networking we can configure
+
+1. host --> docker uses host networking
+2. bridge(default) -> docker has its own networking
+
+disadvantages
+===============
+1. auto scaling --> no default auto scaling methods
+2. load balancing --> no load balancing components to balance traffic b/w multiple containers
+3. reliability --> if container crashes, it will not restart on its own(self healing)
+4. what if docker host crashes?
+5. what about storage ? if docker host crashes we loose data also
+6. networking is only bridge mode, if you have multiple docker hosts bridge networking will not work
+
+container orchestrator
+=======================
+kubernetes from google
+docker swarm vs kubernetes
+
+autoscaling is easy, storage is outside of cluster, rollbacks and multiple deployment strategies are available in kubernetes. networking between containers is little easy in kubernetes
+
+pg owner --> 10 pgs
+
+1 pg building leaning
+
+
+
+work station
+============
+1. install docker
+2. run aws configure
+3. install eksctl for cluster creation
+4. install kubectl for cluster interaction
+
+ARCH=amd64
+PLATFORM=$(uname -s)_$ARCH
+curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
+tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+sudo install -m 0755 /tmp/eksctl /usr/local/bin && rm /tmp/eksctl
+eksctl version
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.33.0/2025-05-01/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv kubectl /usr/local/bin/kubectl
+kubectl version
+
+
+spot instances
+===============
+on demand --> whenever you require you create instance, aws gaurentees you to get instance --> 1$/hour
+
+spot --> AWS data center have lot of resources
+I can give for less cost 70-90% discount --> 20cents/hour
+2min notice
+
+on demand --> AWS takes back spot instances if it needs capacity
+
+eksctl create cluster --config-file=eks.yaml
+
+kubectl get nodes --> shows the worker nodes
+everything is called as resource in kubernetes
+
+K8 --> PAAS
+
+namespace --> isolated project space in kubernetes where you can create your workloads
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: development
+  lables:
+	project: roboshop
+	environment: dev
+
+
+kubectl apply -f <yaml>
+
+pod == container
+pod is the smallest deployable unit in kubernetes, one pod can have multiple containers
+
+docker run -d -p nginx:v1
+
+user, role, permissions

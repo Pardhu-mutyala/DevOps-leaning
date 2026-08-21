@@ -1,0 +1,469 @@
+nodejs java --> libraries
+image = base os + system packages + app run time + app libraries
+
+1. build the image
+2. run/configure the image
+
+client --> docker CLI
+host --> where docker is running, docker deamon(continously running)
+repos --> local repo and central repo
+
+docker run nginx
+1. first it checks image is in local or not
+2. if exists, then it will run the container
+3. if not exists, pull from hub create container and send o/p to client
+4. there are docker volumes and networking we can configure
+
+1. host --> docker uses host networking
+2. bridge(default) -> docker has its own networking
+
+disadvantages
+===============
+1. auto scaling --> no default auto scaling methods
+2. load balancing --> no load balancing components to balance traffic b/w multiple containers
+3. reliability --> if container crashes, it will not restart on its own(self healing)
+4. what if docker host crashes?
+5. what about storage ? if docker host crashes we loose data also
+6. networking is only bridge mode, if you have multiple docker hosts bridge networking will not work
+
+container orchestrator
+=======================
+kubernetes from google
+docker swarm vs kubernetes
+
+autoscaling is easy, storage is outside of cluster, rollbacks and multiple deployment strategies are available in kubernetes. networking between containers is little easy in kubernetes
+
+pg owner --> 10 pgs
+
+1 pg building leaning
+
+
+
+work station
+============
+1. install docker
+2. run aws configure
+3. install eksctl for cluster creation
+4. install kubectl for cluster interaction
+
+ARCH=amd64
+PLATFORM=$(uname -s)_$ARCH
+curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
+tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+sudo install -m 0755 /tmp/eksctl /usr/local/bin && rm /tmp/eksctl
+eksctl version
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.33.0/2025-05-01/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv kubectl /usr/local/bin/kubectl
+kubectl version
+
+
+spot instances
+===============
+on demand --> whenever you require you create instance, aws gaurentees you to get instance --> 1$/hour
+
+spot --> AWS data center have lot of resources
+I can give for less cost 70-90% discount --> 20cents/hour
+2min notice
+
+on demand --> AWS takes back spot instances if it needs capacity
+
+eksctl create cluster --config-file=eks.yaml
+
+kubectl get nodes --> shows the worker nodes
+everything is called as resource in kubernetes
+
+K8 --> PAAS
+
+namespace --> isolated project space in kubernetes where you can create your workloads
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: development
+  lables:
+	project: roboshop
+	environment: dev
+
+
+kubectl apply -f <yaml>
+
+pod == container
+pod is the smallest deployable unit in kubernetes, one pod can have multiple containers
+
+docker run -d -p nginx:v1
+
+user, role, permissions
+
+1. building the image
+2. running the image
+
+apiVersion: v1
+kind: 
+metadata:
+	name:
+	labels:
+spec:
+	containers:
+	- name:
+	  image:
+	- name:
+	  image:
+	  
+CrashLoopBackOff -> container is unable to start
+
+Container vs Pod
+pod is the smallest deployable unit in k8, a pod can have 1 or many containers. all containers inside pod share same network and storage.
+
+multi containers are useful in sidecar patterns and proxy patterns. proxy means first proxy container gets the request, it checks whether request should be forwarded to main container or not.
+
+catalogue, user, cart, shipping, payment, frontend can be in same pod as multiple containers but diff ports should be opened by containers..
+
+lables are used as selectors for other resources inside kuberentes... useful for filtering resources. lables values we can't keep long values, only 63char
+
+annotations are similar to labels, it is key value pair, but not used as selectors. annotations are used to provision external resources to kuberentes. we keep external information build url, image registry, etc...annotations values can be 256char
+
+resource limiting
+=================
+1 processor = 1000m, 250m = 0.25
+
+horizontal scaling vs vertical scaling
+
+1 house 20 year back --> 4
+
+1. you shouldn't stay in the house while remodelling
+2. your basement may not be strong to bear another 2 floors
+
+I may need atleast 20 env variables
+
+code and configuration. try to keep configuration always outside(loose coupling)
+
+we try to keep the configuration outside of pod definition. i.e configmap
+
+devops ---> daeavaoapas --> encoding
+devops --> fhasghauq9871345908752465fdhgfhghfh --> encryption
+
+Service Mesh
+===============
+pod to pod communication, IP address is not useful since it is ephemeral. We have services in kubernetes to acheive
+1. pod to pod communication
+2. load balancing
+
+1. clusterIP --> internal to the cluster
+2. nodePort --> it will open one port called nodePort in every node
+3. LoadBalancer --> it will create a loadbalancer and nodePort in all the nodes
+
+loadbalancer --> node on nodePort --> clusterIP --> pod
+
+clusterIP --> only internal service, means with in the cluster..
+
+How can I create multiple pods to same image?
+============================================
+nginx-c65pj == replicaset-name-<random 5 digit code>
+
+
+Deployment
+===========
+a version change is there
+v1, code changes --> v2
+1. delete v1 application
+2. download v2 application
+3. restart
+
+nginx:v1
+nginx:v2
+
+image: nginx:v2
+
+delete old pods
+create new pods with new image
+
+pod is a subset of replicaset
+replicaset is a subset of deployment
+
+----------------------------
+1. build the image
+2. configure image
+
+namespace
+deployment, service
+
+kubens
+https://github.com/ahmetb/kubectx
+
+git clone https://github.com/ahmetb/kubectx /opt/kubectx
+sudo ln -s /opt/kubectx/kubens /usr/local/bin/kubens
+
+k9s
+curl -sS https://webinstall.dev/k9s | bash
+
+we can also use files as configmap and mount to pod
+
+EKS and Nodes
+
+we have access to only our namespace. Our team is managing 10 backend components in our project...
+
+20 cpu, 80GB ram
+35 nodes for different projects
+
+7 nodes
+node pool - 4
+28 total nodes
+
+namespace size
+
+===============================================
+Volumes
+==============
+data storage --> External HD, Google drives
+
+HD == EBS(Elastic block storage)
+====
+should be as near as possible to the system/server
+data transfer is very fast
+can store Operating systems
+well suitable for databases
+can be connected to only one device
+
+Drive == EFS(Elastic File system) == NFS
+=====
+can be anywhere in the internet
+can be used in multiple systems
+can't store OS and databases in drive
+can store files
+data transfer is slow compared to HD
+
+storage administration
+====================
+data backup
+data security
+data restore
+data replication
+
+PV, PVC and SC
+Persistant volume, persistant volume claim, storage class
+
+1. static provisioning --> need to create storage manually
+2. dynamic provisioning --> disk will be created automatically
+
+EBS static provisioning
+=======================
+1. need to create disk
+2. EBS disks should be in the same AZ of Ec2 instance
+3. Install drivers
+4. EC2 nodes should have permission to connect EBS disks.
+
+1a and 1c
+
+kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=release-1.43"
+
+PV
+====
+K8 resource, It is the physical representation of the volume...
+
+PVC
+====
+it is claiming resource of the storage i.e PV
+
+you can create labels to the nodes, use those labels as node selectors inside pod
+
+https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/
+
+ alpha.eksctl.io/cluster-name=roboshop,
+ alpha.eksctl.io/nodegroup-name=roboshop,
+ beta.kubernetes.io/arch=amd64,
+ beta.kubernetes.io/instance-type=c3.large,
+ beta.kubernetes.io/os=linux,
+ eks.amazonaws.com/capacityType=SPOT,eks.amazonaws.com/nodegroup-image=ami-00a3a30c95b4e2905,eks.amazonaws.com/nodegroup=roboshop,eks.amazonaws.com/sourceLaunchTemplateId=lt-0ccef079fe780a26e,eks.amazonaws.com/sourceLaunchTemplateVersion=1,failure-domain.beta.kubernetes.io/region=us-east-1,failure-domain.beta.kubernetes.io/zone=us-east-1c,k8s.io/cloud-provider-aws=d573a2d478e01899d878f9c9cc3fcc2a,kubernetes.io/arch=amd64,kubernetes.io/hostname=ip-192-168-10-214.ec2.internal,kubernetes.io/os=linux,node.kubernetes.io/instance-type=c3.large,topology.ebs.csi.aws.com/zone=us-east-1c,topology.k8s.aws/zone-id=use1-az6,topology.kubernetes.io/region=us-east-1,
+ topology.kubernetes.io/zone=us-east-1c
+ 
+
+EBS dynamic
+=============
+no need to create disk manually.
+StorageClass is the resource that creates the disk automatically
+
+EKS administrator creates SC resource, he will make it available for us. we use this SC to create disk and PV
+
+2
+
+dev and prod
+
+dev
+=====
+roboshop-dev
+roboshop-qa
+
+prod
+======
+roboshop
+
+cluster level -> admin activity
+namespace level --> EKS user activity
+====================================
+On-premise
+===================
+Disk, NFS
+
+PV --> cluster
+PVC --> namespace level
+
+EKS admins control cluster level objects...
+
+as a roboshop devops engineer, you need a disk to be created for your application,
+
+we will raise a ticket for this. GB, filesystem type(ext4), etc..it is approved by roboshop team lead/delivery lead. Storage team also checks this and it is approved their team leader..
+
+then storage team creates the disk...
+
+provide these disk details to EKS admin, then they create PV for us and tell us the name.
+
+PV --> K8 resource, physical representation of the actual storage.
+PVC --> it is the claim done by pods to mount the storage
+SC --> k8 object used to create the volume dynamically...
+
+EBS static provisioning
+=======================
+1. Install EBS drivers
+2. Provide access to EC2 instance through role, EBSCSIDriverPolicy
+3. create volume in same az as in EC2 instance
+4. create PV, create PVC, create pod with nodeSelector option
+
+
+Kid --> Mother --> Father --> Wallet
+Pod -->	 PVC -->	PV 	  --> Storage
+
+Kid --> Mother --> UPI
+Pod --> PVC
+
+
+ElasticFileSharing(NFS)
+
+EFS static provisioning
+=======================
+1. Install drivers
+2. Give permissions to nodes, EFSCSIDriverPolicy
+3. create EFS volume
+4. Allow port no 2049 in EFS SG from EC2 SG
+5. Create PV, PVC and mount to pod
+kubectl kustomize \
+    "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/ecr/?ref=release-2.1" > private-ecr-driver.yaml
+	
+EBS vs EFS
+===========
+1. EFS can be anywhere in network, EBS should be in same AZ as in EC2
+2. EBS can be accessed only by one instance at a time, EFS can be accessed by multiple instances
+3. EBS is faster than EFS.
+4. EBS is mainly used for OS and DB, EFS is used to store objects and files.
+5. EBS size is fixed, EFS is elastic it automatically grows upto 48TB.
+6. EBS filesystem we can select ext4, EFS filesystem is already decided by AWS as NFS
+7. EBS will not have any SG attached, but EFS is in network, so there will be SG attached and 2049 should be allowed.
+
+1. EFS volume creation --> delete this next
+2. PV, PVC creation --> delete these first
+
+stateful applications --> DB
+
+Deployment --> stateless applications not for stateful applications
+Statefulset --> stateful applications.
+
+Deployment vs Statefulset
+==========================
+1. Deployment is for stateless applications, Statefulset is stateful applications
+2. PV and PVC is not mandatory for Deployment, but mandatory for stateful applications
+3. Statefulset need headless service... i.e no cluster IP
+4. Pods create in orderly manner in statefulset, Once first pod comes to running, then only other pod will create. While deletion reverse order follows
+5. Pod identities are preserved in statefulset, because if any pod crashes, statefulset create another pod with same name, so that communication is easy between pods..
+
+nslookup nginx-svc --> Cluster IP
+
+1. DB node is responsible to findout all the worker nodes and inform them about data changes
+
+headless service, it is a service without cluster IP
+nslookup nginx-headless-svc --> all the endpoint IP
+
+1. EBS dynamic provisioning
+
+============================================
+Recap
+
+---
+1. volumes should be outside of cluster
+
+EBS or EFS static
+=================
+1. Install drivers
+2. Give permissions in EC2 role
+3. create volume
+4. create PV(physical representation of volume)
+5. create PVC
+6. volume mount to pod
+
+if EBS volume should be in the same az as in instance
+if EFS SG should allow port 2049
+
+EBS of EFS dynamic
+=================
+1. Install drivers
+2. Give permissions in EC2 role
+3. create storage class
+4. create PVC with SC name, volume and PV will be created automatically
+5. volume mount to pod
+
+in case of dynamic pod pvc creates volume, so it creates in the same az where ec2 instance is there
+if EFS SG should allow port 2049
+
+Deployment vs StatefulSet
+===========================
+1. Deployment is for stateless applications like frontend and backend
+2. StatefulSet is for DB related applications like MongoDB, MySQL, Redis, RabbitMQ, Prometheus, Grafana, ELK, etc.
+3. Deployment pods can share PV and PVC, but statefulset each pod creates its own volume.
+4. StatefulSet needs headless service i.e clusterIP none, because in DB environments pods should find other pods for data sync
+5. Deployment pods not follows orderly manner, statefulset pods follows orderly manner. it creates <statefulset-name>-0 <statefulset-name>-1....
+6. pods in statefulset keeps their identity
+
+why I took nginx as example in statefulset, even it is frontend server?
+
+simple example to show the data exists
+
+kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=release-1.43"
+
+MongoDB
+========
+
+
+horizontal autoscaling vs vertical autoscaling
+==============================================
+cpu utilisation
+
+1. make sure metrics server is running
+2. we should mention resources requests and limits
+
+current usage
+=============X100
+max usage limit
+
+
+taints and tolerations
+======================
+nodeSelector:
+	az: 1b
+	
+kubectl label nodes ip-192-168-19-250.ec2.internal disktype=ssd
+
+catalogue:v1 
+
+node pulled image catalogue:v1
+
+taint --> is like paint
+
+kubectl taint nodes ip-192-168-19-250.ec2.internal key1=value1:NoSchedule
+
+Scheduler --> Control plane component
+
+why taint?
+
+project specific hardware, seperate firewalls, performance reasons
+
+
